@@ -1,0 +1,2 @@
+# Ejecutar cada 12 horas a las 08:00 y 20:00
+0 8,20 * * * cd /opt/cmps-script && /opt/cmps-script/.venv/bin/python main.py >> /var/log/cmps-script.log 2>&1
