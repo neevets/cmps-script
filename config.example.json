@@ -1,31 +1,15 @@
 {
   "moodle": {
     "base_url": "https://educaciodigital.cat/iesrafaelcampalans/moodle",
-    "token": "",
-    "cookie": "MoodleSession=PEGA_AQUI_TU_COOKIE",
-    "use_cookie": true,
-    "verify_ssl": true
+    "cookie": "MoodleSession=REEMPLAZAR_LOCALMENTE",
+    "course_urls": []
   },
-  "schedule": {
-    "deadline_hours": 48,
-    "lookahead_days": 14,
-    "timezone": "Europe/Madrid"
-  },
+  "timezone": "Europe/Madrid",
+  "database_path": "data/groups.sqlite3",
+  "course_groups": {},
   "whatsapp": {
-    "provider": "callmebot",
-    "api_key": "TU_API_KEY_DE_CALLMEBOT",
-    "announce_recipients": ["+34600000001", "+34600000002"],
-    "group_a_recipients": ["+34600000003"],
-    "group_b_recipients": ["+34600000004"]
-  },
-  "routing": {
-    "default": "announce",
-    "courses": {
-      "Programación": "group_b",
-      "Base de datos": "group_a"
-    }
-  },
-  "storage": {
-    "database_path": "data/state.sqlite3"
+    "webhook_url": "",
+    "token": "",
+    "groups": {"A": "", "B": ""}
   }
 }
