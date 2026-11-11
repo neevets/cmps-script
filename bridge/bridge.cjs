@@ -63,8 +63,21 @@ client.on('ready', async () => {
     if (!chat.isGroup) throw new Error('El destino no es un grupo');
     busy = true;
     const sent = await client.sendMessage(target, payload.text);
+    // Esperar a que el servidor de WhatsApp confirme la recepción (ack >= 1) antes de cerrar;
+    // si se cierra Chromium justo después de sendMessage el mensaje puede perderse.
+    const id = sent.id._serialized;
+    const acked = sent.ack >= 1 || await new Promise(resolve => {
+      const timer = setTimeout(() => resolve(false), 30000);
+      client.on('message_ack', (msg, ack) => {
+        if (msg.id._serialized === id && ack >= 1) { clearTimeout(timer); resolve(true); }
+      });
+    });
     busy = false;
-    console.log(JSON.stringify({sent: true, message_id: sent.id._serialized}));
+    if (!acked) {
+      console.error('WhatsApp no confirmó la recepción: revisa el grupo antes de repetir el envío.');
+      return close(3);
+    }
+    console.log(JSON.stringify({sent: true, message_id: id}));
     await close(0);
   } catch (error) {
     console.error('Error del puente:', error.message);

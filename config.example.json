@@ -5,11 +5,16 @@
     "course_urls": []
   },
   "timezone": "Europe/Madrid",
+  "only_exams": true,
   "database_path": "data/groups.sqlite3",
   "course_groups": {},
   "whatsapp": {
+    "mode": "bridge",
+    "groups": {
+      "A": "",
+      "B": ""
+    },
     "webhook_url": "",
-    "token": "",
-    "groups": {"A": "", "B": ""}
+    "token": ""
   }
 }

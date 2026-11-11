@@ -1,50 +1,40 @@
-# CMPS Script — Avisos de Moodle a WhatsApp
+# CMPS Script — Exámenes de Moodle a WhatsApp
 
-Bot en Python que revisa las tareas, cuestionarios y exámenes de Moodle con entrega en las próximas 48 horas y envía avisos por WhatsApp mediante CallMeBot.
+Lee tus cursos de Moodle y avisa por WhatsApp, en los grupos SMX (A) y SMX (B), de los exámenes (y opcionalmente tareas) con fecha en las próximas 48 horas. No repite avisos (SQLite).
 
-## Características
+Flujo: `main.py` (Python, lee Moodle) → `bridge/bridge.cjs` (Node, WhatsApp Web por QR) → grupo.
 
-- Lee todos los cursos del usuario.
-- Detecta tareas, cuestionarios/exámenes y eventos de entrega.
-- Avisa cuando faltan 48 horas o menos.
-- Evita avisos duplicados con SQLite.
-- Configuración mediante `config.json`.
-- Dos modos de acceso a Moodle: token de Web Services o cookie de sesión.
-- Enrutado por curso: `announce`, `group_a`, `group_b` o `all`.
+> El puente QR no es oficial: puede dejar de funcionar o tener restricciones de cuenta. Úsalo solo con una cuenta tuya y grupos cuyos miembros acepten los avisos.
 
-## Importante: grupos de WhatsApp
-
-CallMeBot envía mensajes individuales, no a grupos. Este bot envía el mismo aviso a cada número configurado en la lista correspondiente.
-
-## Instalación
+## Instalación (en un PC o VPS siempre encendido, Node 20+)
 
 ```bash
-git clone https://github.com/neevets/cmps-script.git
-cd cmps-script
-python -m venv .venv
-source .venv/bin/activate
+git clone https://github.com/neevets/cmps-script.git && cd cmps-script
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp config.example.json config.json
+cp config.example.json config.json && chmod 600 config.json
+cd bridge && npm install
 ```
 
-Edita `config.json` con tu cookie o token, los números de WhatsApp y el enrutado de cursos.
+1. Pon tu cookie `MoodleSession` en `config.json` (`moodle.cookie`). Caduca: si el bot dice "Sesión no válida", renuévala.
+2. `npm run link` (en `bridge/`) y escanea el QR en WhatsApp → Dispositivos vinculados.
+3. `npm run groups` y copia los IDs de SMX (A) y SMX (B) en `whatsapp.groups.A` / `.B`.
+4. Para cursos sin "Grupo A/B" en el texto, asigna `course_groups` (URL exacta del curso → `["A"]`, `["B"]` o `["A","B"]` para ambos).
 
-## Ejecución manual
+## Uso
 
 ```bash
-python main.py
+python main.py          # prueba: muestra lo que enviaría
+python main.py --send   # envía de verdad
 ```
 
-## Cron en VPS
-
-Cada 12 horas, a las 08:00 y 20:00:
+Automático cada 12 h:
 
 ```cron
-0 8,20 * * * cd /opt/cmps-script && /opt/cmps-script/.venv/bin/python main.py >> /var/log/cmps-script.log 2>&1
+0 8,20 * * * cd /opt/cmps-script && /opt/cmps-script/.venv/bin/python main.py --send >> /opt/cmps-script/data/bot.log 2>&1
 ```
 
-## Seguridad
+`only_exams: true` (por defecto) envía solo exámenes/cuestionarios; ponlo a `false` para incluir tareas.
+Si WhatsApp no confirma un envío, se registra un error y no se repite (revisa el grupo). Tests: `pip install pytest && pytest`.
 
-- No subas `config.json`, cookies ni tokens a GitHub.
-- Usa `config.example.json` como plantilla.
-- El bot debe usarse únicamente con tu propia cuenta de Moodle.
+Más detalles en `GROUPS.md` y `QR.md`. No subas `config.json`, cookies ni `data/`.
